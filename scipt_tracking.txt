@@ -1,0 +1,79 @@
+CREATE DATABASE IF NOT EXISTS tracking_pedidos;
+USE sistema_tracking_pedidos;
+
+CREATE TABLE clientes (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    correo_electronico VARCHAR(100),
+    telefono VARCHAR(20),
+    direccion VARCHAR(255),
+    ciudad VARCHAR(100),
+    estado VARCHAR(100),
+    codigo_postal VARCHAR(20),
+    pais VARCHAR(100)
+);
+
+CREATE TABLE pedidos (
+    id_pedido INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_pedido DATETIME NOT NULL,
+    estado ENUM('Pendiente', 'Enviado', 'Entregado', 'Cancelado') NOT NULL,
+    id_cliente INT,
+    monto_total DECIMAL(10, 2) NOT NULL,
+    metodo_pago ENUM('Tarjeta de Crédito', 'PayPal', 'Transferencia Bancaria') NOT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+);
+
+CREATE TABLE productos (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_producto VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10, 2) NOT NULL,
+    cantidad_stock INT NOT NULL
+);
+
+CREATE TABLE detalles_pedido (
+    id_detalle_pedido INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    id_producto INT,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    precio_total DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido),
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+
+CREATE TABLE tracking (
+    id_tracking INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    estado ENUM('En Tránsito', 'En Camino', 'Entregado') NOT NULL,
+    ubicacion VARCHAR(255),
+    fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
+);
+
+CREATE TABLE metodos_envio (
+    id_metodo_envio INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_metodo VARCHAR(100) NOT NULL,
+    costo DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE direcciones_envio (
+    id_direccion_envio INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    direccion VARCHAR(255) NOT NULL,
+    ciudad VARCHAR(100) NOT NULL,
+    estado VARCHAR(100) NOT NULL,
+    codigo_postal VARCHAR(20) NOT NULL,
+    pais VARCHAR(100) NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
+);
+
+CREATE TABLE pagos (
+    id_pago INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    monto DECIMAL(10, 2) NOT NULL,
+    fecha_pago DATETIME NOT NULL,
+    metodo_pago ENUM('Tarjeta de Crédito', 'PayPal', 'Transferencia Bancaria') NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
+);
