@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/templatemo-chain-app-dev.css">
+    <link rel="stylesheet" href="assets/css/animated.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
+
+
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    
+    <div id="app">
+        
+        <v-app>
+            <v-main>
+                <v-container>
+
+                    <v-card class="mx-auto" max-width="400">
+                        <v-card dark flat>
+                            <v-btn absolute bottom color="pink" right fab>
+                                <v-icon>mdi-plus</v-icon>
+                            </v-btn>
+                            <v-card-title class="pa-2 blue">
+                                <v-btn icon>
+                                    <v-icon>mdi-menu</v-icon>
+                                </v-btn>
+                                <h3 class="text-h6 font-weight-light text-center grow">
+                                    tracking pedido #546546
+                                </h3>
+                                <v-avatar>
+                                    <v-img
+                                        src="https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light"></v-img>
+                                </v-avatar>
+                            </v-card-title>
+                            <v-img src="assets/images/delivery.gif"
+                                gradient="to top, rgba(0,0,0,.44), rgba(0,0,0,.44)">
+                                <v-container class="fill-height">
+                                    <v-row align="center">
+                                        <strong class="text-h1 font-weight-regular mr-6">8</strong>
+                                        <v-row justify="end">
+                                            <div class="text-h5 font-weight-light">
+                                                lunes
+                                            </div>
+                                            <div class="text-uppercase font-weight-light">
+                                                Enero 2024
+                                            </div>
+                                        </v-row>
+                                    </v-row>
+                                </v-container>
+                            </v-img>
+                        </v-card>
+                        <v-card-text class="py-0">
+                            <v-timeline align-top dense>
+                                <v-timeline-item color="pink" small>
+                                    <v-row class="pt-1">
+                                        <v-col cols="3">
+                                            <strong>5pm</strong>
+                                        </v-col>
+                                        <v-col>
+                                            <strong>Inicio</strong>
+                                            <div class="text-caption">
+                                                solicitud de pedido
+                                            </div>
+                                        </v-col>
+                                    </v-row>
+                                </v-timeline-item>
+
+                                <v-timeline-item color="teal lighten-3" small>
+                                    <v-row class="pt-1">
+                                        <v-col cols="3">
+                                            <strong>3-4pm</strong>
+                                        </v-col>
+                                        <v-col>
+                                            <strong>Asignado a </strong>
+                                            <div class="text-caption mb-2">
+                                                Despachadores
+                                            </div>
+                                            <v-avatar>
+                                                <v-img
+                                                    src="https://avataaars.io/?avatarStyle=Circle&topType=LongHairFrida&accessoriesType=Kurt&hairColor=Red&facialHairType=BeardLight&facialHairColor=BrownDark&clotheType=GraphicShirt&clotheColor=Gray01&graphicType=Skull&eyeType=Wink&eyebrowType=RaisedExcitedNatural&mouthType=Disbelief&skinColor=Brown"></v-img>
+                                            </v-avatar>
+                                            <v-avatar>
+                                                <v-img
+                                                    src="https://avataaars.io/?avatarStyle=Circle&topType=ShortHairFrizzle&accessoriesType=Prescription02&hairColor=Black&facialHairType=MoustacheMagnum&facialHairColor=BrownDark&clotheType=BlazerSweater&clotheColor=Black&eyeType=Default&eyebrowType=FlatNatural&mouthType=Default&skinColor=Tanned"></v-img>
+                                            </v-avatar>
+                                            <v-avatar>
+                                                <v-img
+                                                    src="https://avataaars.io/?avatarStyle=Circle&topType=LongHairMiaWallace&accessoriesType=Sunglasses&hairColor=BlondeGolden&facialHairType=Blank&clotheType=BlazerSweater&eyeType=Surprised&eyebrowType=RaisedExcited&mouthType=Smile&skinColor=Pale"></v-img>
+                                            </v-avatar>
+                                        </v-col>
+                                    </v-row>
+                                </v-timeline-item>
+
+                                <v-timeline-item color="pink" small>
+                                    <v-row class="pt-1">
+                                        <v-col cols="3">
+                                            <strong>martes 22</strong>
+                                        </v-col>
+                                        <v-col>
+                                            <strong>Despachado</strong>
+                                        </v-col>
+                                    </v-row>
+                                </v-timeline-item>
+
+                                <v-timeline-item color="teal lighten-3" small>
+                                    <v-row class="pt-1">
+                                        <v-col cols="3">
+                                            <strong>13 Entregado</strong>
+                                        </v-col>
+                                        <v-col>
+                                            <strong>Producto entregado</strong>
+                                            <div class="text-caption">
+                                                Finalizado pedido
+                                            </div>
+                                        </v-col>
+                                    </v-row>
+                                </v-timeline-item>
+                            </v-timeline>
+                        </v-card-text>
+                    </v-card>
+                </v-container>
+            </v-main>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+        })
+    </script>
+</body>
+
+</html>
