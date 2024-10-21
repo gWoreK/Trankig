@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda en Línea</title>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.5.10/dist/vuetify.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 50px 20px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .v-card {
+            margin-bottom: 20px;
+            height: 100%;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .total-label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-container class="container">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo.png" alt="Logo Tienda" width="120" height="60">
+                    </a>
+                </div>
+
+                <v-btn color="primary" @click="cargarProductos">Cargar Productos</v-btn>
+
+                <v-row>
+                    <v-col cols="12" md="8">
+                        <v-card>
+                            <v-card-title class="headline blue--text">Productos Disponibles</v-card-title>
+                            <v-card-text>
+                                <v-row>
+                                    <v-col v-for="(producto, index) in productosFiltrados" :key="index" cols="12" md="6" lg="4">
+                                        <v-card>
+                                           
+                                            <v-img :src="producto.fotografia" class="product-image" @click="mostrarImagen(producto.imagen)"></v-img>
+                                            <v-card-title>{{ producto.nombre }}</v-card-title>
+                                            <v-card-subtitle>${{ parseFloat(producto.precio).toFixed(2) }}</v-card-subtitle>
+                                            <v-card-text>
+                                                <v-btn color="primary" @click="agregarAlCarrito(producto)">Agregar al carrito</v-btn>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+
+                    <v-col cols="12" md="4">
+                        <v-card>
+                            <v-card-title class="headline">Carrito de Compra</v-card-title>
+                            <v-card-text>
+                                <v-list dense>
+                                    <v-list-item v-for="(item, index) in carrito" :key="index">
+                                        <v-list-item-content>
+                                            <v-list-item-title>{{ item.nombre }}</v-list-item-title>
+                                            <v-list-item-subtitle>${{ parseFloat(item.precio).toFixed(2) }}</v-list-item-subtitle>
+                                        </v-list-item-content>
+                                        <v-list-item-action>
+                                            <v-btn icon @click="eliminarDelCarrito(index)">
+                                                <v-icon color="red">mdi-delete</v-icon>
+                                            </v-btn>
+                                        </v-list-item-action>
+                                    </v-list-item>
+                                </v-list>
+                                <v-divider></v-divider>
+                                <v-card-title class="total-label">Total: ${{ total.toFixed(2) }}</v-card-title>
+                                <v-btn color="success" block @click="mostrarPago" :disabled="carrito.length === 0">Procesar Compra</v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </v-row>
+
+                <v-dialog v-model="dialog" max-width="800px">
+                    <v-img :src="selectedImage" @click="dialog = false"></v-img>
+                </v-dialog>
+
+                <v-dialog v-model="dialogPago" max-width="500px">
+                    <v-card>
+                        <v-card-title class="headline">Seleccionar Método de Pago</v-card-title>
+                        <v-card-text>
+                            <v-radio-group v-model="metodoPago" @change="limpiarCampos">
+                                <v-radio label="Tarjeta de Débito" value="tarjeta"></v-radio>
+                                <v-radio label="PayPal" value="paypal"></v-radio>
+                            </v-radio-group>
+                            <v-text-field v-if="metodoPago === 'tarjeta'" label="Número de Tarjeta de Débito" v-model="numeroTarjeta" required></v-text-field>
+                            <v-text-field v-if="metodoPago === 'tarjeta'" label="CVV" v-model="cvv" required></v-text-field>
+                            <v-text-field v-if="metodoPago === 'tarjeta'" label="Fecha de Expiración (MM/AA)" v-model="fechaExpiracion" required></v-text-field>
+                            <v-text-field v-if="metodoPago === 'paypal'" label="Número de Cuenta PayPal" v-model="numeroPaypal" required></v-text-field>
+                            <div v-if="isError" class="error-message">{{ mensaje }}</div>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn color="primary" @click="confirmarPago">Confirmar</v-btn>
+                            <v-btn @click="dialogPago = false">Cancelar</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
+                <v-dialog v-model="dialogConfirmacion" max-width="400px">
+                    <v-card>
+                        <v-card-title class="headline">Confirmar Pago</v-card-title>
+                        <v-card-text>
+                            ¿Está seguro de que desea procesar el pago?
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn color="green" @click="procesarCompra">Sí</v-btn>
+                            <v-btn color="red" @click="dialogConfirmacion = false">No</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-container>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data() {
+                return {
+                    productos: [],
+                    carrito: [],
+                    dialog: false,
+                    dialogPago: false,
+                    dialogConfirmacion: false,
+                    selectedImage: '',
+                    metodoPago: 'tarjeta',
+                    numeroTarjeta: '',
+                    numeroPaypal: '',
+                    cvv: '',
+                    fechaExpiracion: '',
+                    isError: false,
+                    mensaje: '',
+                };
+            },
+            computed: {
+                total() {
+                    return this.carrito.reduce((sum, item) => sum + parseFloat(item.precio), 0);
+                },
+                productosFiltrados() {
+                    return this.productos; // Mostrar todos los productos
+                },
+            },
+            methods: {
+                cargarProductos() {
+                    axios.get('https://darkslateblue-horse-824662.hostingersite.com/tracking_pedidov1/api.php/productos/')
+                        .then(response => {
+                            this.productos = response.data.map(producto => {
+                                return {
+                                    ...producto,
+                                    precio: parseFloat(producto.precio) // Aseguramos que el precio es un número
+                                };
+                            });
+                            console.log(this.productos); // Para verificar que los productos se cargan correctamente
+                        })
+                        .catch(error => {
+                            console.error("Error al cargar los productos:", error);
+                            this.isError = true;
+                            this.mensaje = "No se pudieron cargar los productos.";
+                        });
+                },
+                agregarAlCarrito(producto) {
+                    this.carrito.push(producto);
+                },
+                eliminarDelCarrito(index) {
+                    this.carrito.splice(index, 1);
+                },
+                mostrarImagen(imagen) {
+                    this.selectedImage = imagen;
+                    this.dialog = true;
+                },
+                mostrarPago() {
+                    this.dialogPago = true;
+                },
+                confirmarPago() {
+                    // Verifica si los campos de la tarjeta son válidos antes de confirmar el pago
+                    const tarjetaRegex = /^[0-9]{13,19}$/; // Validar que la tarjeta tenga entre 13 y 19 dígitos
+                    const cvvRegex = /^[0-9]{3,4}$/; // Validar CVV
+                    const fechaRegex = /^(0[1-9]|1[0-2])\/\d{2}$/; // Validar formato de fecha MM/AA
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Validar formato de correo electrónico
+
+                    if (this.metodoPago === 'tarjeta') {
+                        if (!this.numeroTarjeta || !tarjetaRegex.test(this.numeroTarjeta)) {
+                            this.isError = true;
+                            this.mensaje = 'Por favor, ingrese un número de tarjeta válido.';
+                            return;
+                        }
+                        if (!this.cvv || !cvvRegex.test(this.cvv)) {
+                            this.isError = true;
+                            this.mensaje = 'Por favor, ingrese un CVV válido.';
+                            return;
+                        }
+                        if (!this.fechaExpiracion || !fechaRegex.test(this.fechaExpiracion)) {
+                            this.isError = true;
+                            this.mensaje = 'Por favor, ingrese una fecha de expiración válida (MM/AA).';
+                            return;
+                        }
+                    } else if (this.metodoPago === 'paypal') {
+                        if (!this.numeroPaypal || !emailRegex.test(this.numeroPaypal)) {
+                            this.isError = true;
+                            this.mensaje = 'Por favor, ingrese un correo electrónico de PayPal válido.';
+                            return;
+                        }
+                    }
+
+                    this.dialogConfirmacion = true; // Muestra el modal de confirmación
+                },
+                procesarCompra() {
+                    alert('Compra procesada con éxito!');
+                    this.carrito = [];
+                    this.dialogPago = false;
+                    this.dialogConfirmacion = false;
+                    this.isError = false;
+                },
+                limpiarCampos() {
+                    this.numeroTarjeta = '';
+                    this.numeroPaypal = '';
+                    this.cvv = '';
+                    this.fechaExpiracion = '';
+                    this.isError = false;
+                    this.mensaje = '';
+                },
+            }
+        });
+    </script>
+</body>
+
+</html>

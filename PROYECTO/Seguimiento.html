@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Compra y Seguimiento de Pedidos</title>
+    <!-- Importar Vuetify CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.6.0/dist/vuetify.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        .logo-container {
+            text-align: center; /* Centrar el logo */
+            margin-bottom: 20px; /* Espaciado inferior */
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        .mensaje {
+            color: green;
+            font-weight: bold; 
+        }
+        .mensaje-error {
+            color: red;
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <v-app>
+            <v-container class="container" fluid>
+                <div class="logo-container">
+                    <img src="assets/images/logo.png" width="120px" alt="Tracking Logo">
+                </div>
+                <v-card>
+                    <v-card-title>
+                        <span class="headline">Seguimiento</span>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-form ref="form" v-model="valid" lazy-validation>
+                            <v-text-field
+                                v-model="nombre"
+                                :rules="nombreRules"
+                                label="Nombre"
+                                required
+                            ></v-text-field>
+                            <v-text-field
+                                v-model="email"
+                                :rules="emailRules"
+                                label="Correo Electrónico"
+                                required
+                            ></v-text-field>
+                            <v-text-field
+                                v-model="numeroPedido"
+                                :rules="numeroPedidoRules"
+                                label="Número de Pedido"
+                                :disabled="numeroPedido >= 2500"
+                                readonly
+                                :value="formatoNumeroPedido"
+                            ></v-text-field>
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="blue" :disabled="!valid" @click="realizarPedido">Realizar Pedido</v-btn>
+                    </v-card-actions>
+                </v-card>
+                <div v-if="mensaje" class="mt-4 mensaje">
+                    {{ mensaje }}
+                </div>
+                <div v-if="error" class="mt-4 mensaje-error">
+                    {{ error }}
+                </div>
+            </v-container>
+        </v-app>
+    </div>
+
+    <!-- Importar Vue y Vuetify -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.6.0/dist/vuetify.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data() {
+                return {
+                    nombre: '',
+                    email: '',
+                    numeroPedido: 1, // Comenzamos desde 1
+                    mensaje: '',
+                    error: '',
+                    valid: false,
+                    nombreRules: [
+                        v => !!v || 'Nombre es requerido',
+                    ],
+                    emailRules: [
+                        v => !!v || 'Correo Electrónico es requerido',
+                        v => /.+@.+\..+/.test(v) || 'Correo Electrónico debe ser válido',
+                    ],
+                    numeroPedidoRules: [
+                        v => this.numeroPedido <= 2500 || 'Se ha alcanzado el límite de pedidos.',
+                    ],
+                };
+            },
+            computed: {
+                formatoNumeroPedido() {
+                    return `ped-${this.numeroPedido}`; // Formato del número de pedido
+                }
+            },
+            methods: {
+                realizarPedido() {
+                    // Verificar si el número de pedido es menor o igual a 2500
+                    if (this.numeroPedido > 2500) {
+                        this.error = 'Se ha alcanzado el límite de pedidos.';
+                        return;
+                    }
+
+                    // Simulamos el seguimiento de un pedido
+                    this.mensaje = `Pedido realizado con éxito. ${this.nombre}, su número de pedido es ${this.formatoNumeroPedido}.`;
+
+                    // Incrementar el número de pedido
+                    this.numeroPedido++;
+
+                    // Redirigir a tracking.html después de un breve delay
+                    setTimeout(() => {
+                        window.location.href = 'tracking.html'; // Redirección
+                    }, 2000); // 2 segundos de espera antes de redirigir
+
+                    // Resetear campos
+                    this.nombre = '';
+                    this.email = '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/templatemo-chain-app-dev.css">
+    <link rel="stylesheet" href="assets/css/animated.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-main>
+
+
+
+
+
+
+
+
+                <v-card class="mx-auto">
+
+
+                    <v-app-bar dark color="light-blue darken-4" :loading="loading">
+                        <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+                        <v-toolbar-title>Tracking de pedido</v-toolbar-title>
+
+                        <v-spacer></v-spacer>
+
+                        <v-btn icon>
+                            <v-icon>mdi-magnify</v-icon>
+                        </v-btn>
+                    </v-app-bar>
+
+                    <v-container>
+                        <v-row dense>
+                            <v-col cols="12">
+
+
+
+
+                                <v-stepper v-model="e1">
+                                    <v-stepper-header>
+                                        <v-stepper-step :complete="e1 > 1" step="1">
+                                            No. Tracking
+                                        </v-stepper-step>
+
+                                        <v-divider></v-divider>
+
+                                        <v-stepper-step :complete="e1 > 2" step="2">
+                                            Tracking Informacion
+                                        </v-stepper-step>
+
+
+                                    </v-stepper-header>
+
+                                    <v-stepper-items>
+                                        <v-stepper-content step="1">
+
+                                            <v-form ref="form" class="mt-5" v-model="valid" lazy-validation>
+                                                <v-text-field v-model="codigo" outlined clearable :counter="10"
+                                                    class="custom-text-field" label="Codigo de pedido"
+                                                    required></v-text-field>
+                                                <v-btn x-large block color="success" @click="consultatracking">
+                                                    Buscar
+                                                </v-btn>
+
+
+                                            </v-form>
+
+
+                                        </v-stepper-content>
+
+                                        <v-stepper-content step="2">
+                                            <v-card class="mx-auto" max-width="400">
+
+<!-- dd/mm/yyyy -->
+                                                <!-- Cuadro para el GIF con estilos ajustados -->
+                                                <v-card class="mt-3" elevation="2" v-if="data.tracking && data.tracking.length">
+                                                    <v-btn
+                                                    absolute
+                                                    bottom
+                                                    color="pink"
+                                                    right
+                                                    fab
+                                                     @click="nuevaConsutla"
+                                                     
+                                                  >
+                                                    <v-icon>mdi-reload</v-icon>
+                                                  </v-btn>
+                                                    <v-img :src="estadoImagen[data.tracking[data.tracking.length-1].estado].imagen" class="gif-container"
+                                                        height="300" contain>
+                                                
+
+                                                        <v-container class="fill-height">
+                                                            <v-row align="center">
+                                                              <strong :class="estadoImagen[data.tracking[data.tracking.length-1].estado].color" class="text-h5 font-weight-regular mr-6">{{data.tracking[data.tracking.length-1].fecha_hora}} </strong>
+                                                              <v-row justify="end">
+                                                                
+                                                                <div class=" text-uppercase font-weight-light ">
+                                                                    <b :class="estadoImagen[data.tracking[data.tracking.length-1].estado].color">Ultimo estado:{{data.tracking[data.tracking.length-1].estado}}</b>
+                                                                </div>
+                                                              </v-row>
+                                                            </v-row>
+                                                          </v-container>
+
+
+                                                  
+                                                    </v-img>
+                                                </v-card>
+
+                                                <v-card-text class="py-0">
+                                                    <v-timeline v-if="data.tracking && data.tracking.length" align-top
+                                                        dense>
+                                                        <v-timeline-item v-for="(item, index) in data.tracking"
+                                                            :key="index" :color="getColor(item.estado)" small>
+                                                            <v-row class="pt-1">
+                                                                <v-col cols="7">
+                                                                    <strong>{{ item.fecha_hora }}</strong>
+                                                                </v-col>
+                                                                <v-col>
+                                                                    <v-chip
+   
+      class="ma-2"
+ 
+      :color="getColor(item.estado)"
+    >
+    {{ item.estado }}
+    </v-chip>
+                                                                  
+                                                                </v-col>
+                                                            </v-row>
+                                                        </v-timeline-item>
+                                                    </v-timeline>
+                                                    <div v-else>
+                                                        <p>{{ mensajeApi }}</p>
+                                                    </div>
+                                                </v-card-text>
+                                            </v-card>
+                                        </v-stepper-content>
+
+
+                                    </v-stepper-items>
+                                </v-stepper>
+
+
+
+                            </v-col>
+
+                            <v-col :key="i" cols="12">
+
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-card>
+
+
+
+
+            </v-main>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+
+    <style>
+        .custom-text-field .v-input__control {
+            font-size: 30px;
+            /* Tamaño del texto */
+        }
+
+        .custom-text-field .v-input__slot {
+            height: 50px;
+            /* Altura del campo */
+        }
+
+        .custom-text-field input {
+            padding: 15px;
+            /* Espaciado interno */
+        }
+
+        .gif-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            /* Fondo opcional */
+            border-radius: 10px;
+            overflow: hidden;
+            /* Recorta contenido extra */
+        }
+    </style>
+
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data() {
+                return {
+                    e1: 1,
+                    showInput: false,
+                    loader: false,
+                    codigo: 'dfc8926af3',
+                    data: [],
+                    mensajeApi: '',
+                    gifActual: 'assets/images/delivery.gif',
+                    estadoActual: '',
+                    estadoImagen:
+                    {
+                        "Pendiente":{"imagen":"assets/images/pendiente.gif","color":'blue--text'} ,
+                        "Preparando pedido":{"imagen":"assets/images/preparando.gif","color":'blue--text'} ,
+                        "Despacho bodega":{"imagen":"assets/images/despacho.gif","color":'lime--text'} ,
+                        "Enviado":{"imagen":"assets/images/delivery.gif","color":'white--text'} ,
+                        "Entregado":{"imagen":"assets/images/entregando.gif","color":'blue--text'} ,
+                        "Cancelado":{"imagen":"assets/images/cancelado.webp","color":'blue--text'} ,
+                    },
+
+
+
+                };
+            },
+            methods: {
+                nuevaConsutla(){
+             
+                    this.e1 = 1;
+                    this.data='';
+                    this.codigo='';
+
+                },
+                consultatracking() {
+                    try {
+                        this.e1 = 2;
+                        this.loader = true;
+                        axios.post('https://darkslateblue-horse-824662.hostingersite.com/tracking_pedidov1/api.php/tracking', { codigo: this.codigo })
+                            .then(response => {
+                                this.data = response.data;
+                                // this.mensajeApi = response.data.mensaje || '';
+                                // if (this.data.tracking && this.data.tracking.length) {
+                                //     this.estadoActual = this.data.tracking[this.data.tracking.length - 1].estado;
+                                //     this.cambiarGif();
+                                // }
+                            })
+                            .catch(() => {
+                                this.mensajeApi = 'Hubo un error. Intente de nuevo.';
+                            });
+
+                    } catch (error) {
+
+                    } finally {
+                        this.loader = false;
+                    }
+
+                },
+
+                getColor(estado) {
+                    const colors = {
+                        'Pendiente': 'yellow',
+                        'Preparando pedido': 'orange',
+                        'Despachado bodega': 'gray',
+                        'Enviado': 'blue',
+                        'Entregado': 'green',
+                        'Cancelado': 'red'
+                    };
+                    return colors[estado] || 'blue';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

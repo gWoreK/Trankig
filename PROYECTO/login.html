@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tracking Login</title>
+    <!-- Vuetify CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.6.12/dist/vuetify.min.css" rel="stylesheet">
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Vue CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <!-- Vuetify JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.6.12/dist/vuetify.min.js"></script>
+</head>
+
+<body>
+    
+    <div id="app">
+        <v-app>
+            <v-container class="fill-height d-flex justify-center align-center">
+                <v-row justify="center">
+                    <v-col cols="12" sm="8" md="6" lg="4">
+                        <!-- Tarjeta de login -->
+                        <v-card class="elevation-12">
+                            <!-- Icono de tracking -->
+                            <v-card-title class="justify-center">
+                                <v-icon large color="primary">mdi-truck-delivery-outline</v-icon>
+                            </v-card-title>
+                            <center>
+                                <div class="align-center" center>
+                                    <img src="assets/images/logo.png" width="120px" alt="Tracking Logo">
+                                </div>
+                            </center>
+                            <!-- Título del login -->
+                            <v-card-title class="text-h5 justify-center">
+                                Tracking Login
+                            </v-card-title>
+
+                            <!-- Formulario de login -->
+                            <v-card-text>
+                                <v-form ref="form" v-model="valid">
+                                    <v-text-field label="Usuario" v-model="usuario"
+                                        :rules="[v => !!v || 'este campo es requerido']" outlined dense clearable
+                                        required></v-text-field>
+
+                                    <v-text-field label="Contraseña" v-model="password"
+                                        :rules="[v => !!v || 'Este campo es requerido']" type="password" outlined dense
+                                        clearable required></v-text-field>
+
+                                    <v-btn color="primary" class="mt-4" :loading="loading" block @click="submitLogin">
+                                        Iniciar sesión
+                                    </v-btn>
+                                </v-form>
+                            </v-card-text>
+
+                            <!-- Footer del formulario -->
+                            <v-card-actions class="justify-center">
+                                <v-btn text small href="register.html">Registrate</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </v-app>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data() {
+                return {
+                    loading: false,
+                    valid: true,
+                    usuario: 'JMUNOZ',
+                    password: 'Facil123',
+                }
+            },
+            mounted() {
+                console.log('El componente ha sido montado');
+                // Aquí puedes realizar alguna acción cuando el componente esté montado
+                this.message = 'Componente montado y listo';
+            },
+            methods: {
+                submitLogin() {
+
+                    try {
+                     
+                        if(!this.$refs.form.validate()) throw 'Debe complear los campos'
+                        this.loading=true;
+                        console.log('ingreso')
+                        const credentials = btoa(this.usuario+':'+this.password);
+                        let config = {
+                            method: 'get',
+                            maxBodyLength: Infinity,
+                            url: 'https://darkslateblue-horse-824662.hostingersite.com/tracking_pedidov1/api.php/login',
+                            headers: {
+                                'Authorization': `Basic ${credentials}`,
+                                'Content-Type': 'application/json'
+                            }
+                        };
+                        console.log('ingreso1')
+
+                        axios.request(config)
+                            .then((response) => {
+                                console.log(JSON.stringify(response.data),'aca');
+                                if (response.status === 200) {
+                                    alert('logeado exitosamente')
+                                    window.location.href = '/tracking.html';// Cambia '/pagina-destino' a la ruta a la que deseas redirigir
+                                }
+
+                            })
+                            .catch((error) => {
+                               throw 'afdsfsd';
+                            });
+
+                        console.log('ingreso3')
+
+                    } catch (error) {
+                        alert(error)
+
+                    }finally{
+                        
+                        // this.loading=false;
+                    }
+
+                },
+
+            }
+        })
+    </script>
+</body>
+
+</html>

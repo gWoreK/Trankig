@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Paquetería" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@2.5.0/dist/vuetify.min.css">
+    
+    <title>Cotizador &#8211; Cargo Expreso</title>
+    
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: Roboto, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        img {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <v-container class="container">
+                <div class="logo-container">
+                    <img src="assets/images/logo.png" alt="Tracking Logo">
+                </div>
+
+                <v-card class="pa-4">
+                    <v-card-title class="blue--text">Cotizador de Envío en Guatemala</v-card-title>
+                    <v-card-text>
+                        <v-form ref="form" v-model="valid" lazy-validation>
+
+                            <v-select
+                                v-model="tipoContenido"
+                                :items="['Paquete', 'Sobres']"
+                                label="Selecciona el tipo de contenido"
+                                required
+                                :rules="[v => !!v || 'Debe seleccionar un tipo de contenido']"
+                            ></v-select>
+
+                            <v-text-field
+                                v-model="contenido"
+                                label="Contenido del Envío"
+                                required
+                                :rules="[v => !!v || 'Campo requerido']"
+                            ></v-text-field>
+
+                            <v-text-field
+                                v-model="cantidad"
+                                label="Cantidad de productos"
+                                type="number"
+                                required
+                                :rules="[v => !!v || 'Debe ingresar la cantidad']"
+                            ></v-text-field>
+
+                            <v-text-field
+                                v-model="peso"
+                                label="Peso del producto (libras)"
+                                type="number"
+                                required
+                                :rules="[v => !!v || 'Debe ingresar el peso en libras']"
+                            ></v-text-field>
+
+                            <v-select
+                                v-model="departamento"
+                                :items="Object.keys(departamentosMunicipios)"
+                                label="Selecciona el departamento"
+                                @change="actualizarMunicipios"
+                                required
+                                :rules="[v => !!v || 'Debe seleccionar un departamento']"
+                            ></v-select>
+
+                            <v-select
+                                v-model="municipio"
+                                :items="municipios"
+                                label="Selecciona el municipio"
+                                required
+                                :rules="[v => !!v || 'Debe seleccionar un municipio']"
+                            ></v-select>
+
+                            <v-radio-group v-model="tipoEnvio" row :rules="[v => !!v || 'Debe seleccionar un tipo de envío']">
+                                <v-radio label="Envío Estándar" value="estandar"></v-radio>
+                                <v-radio label="Envío Urgente" value="urgente"></v-radio>
+                            </v-radio-group>
+
+                            <v-btn color="primary" @click="calcularCostoEnvio">Calcular Precio de Envío</v-btn>
+                        </v-form>
+
+                        <div v-if="mensaje" class="mt-4">{{ mensaje }}</div>
+                    </v-card-text>
+                </v-card>
+            </v-container>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data() {
+                return {
+                    valid: true,
+                    tipoContenido: '',
+                    contenido: '',
+                    cantidad: '',
+                    peso: '',
+                    departamento: '',
+                    municipio: '',
+                    departamentosMunicipios: {
+                        'Alta Verapaz': ['Cobán', 'San Pedro Carchá', 'San Juan Chamelco', 'Tactic', 'Tamahú', 'Tucurú'],
+                        'Baja Verapaz': ['Salamá', 'Cubulco', 'Rabinal', 'San Jerónimo', 'Purulhá'],
+                        'Chimaltenango': ['Chimaltenango', 'Acatenango', 'San Martín Jilotepeque', 'Comalapa'],
+                        'Chiquimula': ['Chiquimula', 'Concepción Las Minas', 'San José La Arada', 'Esquipulas'],
+                        'El Progreso': ['Guastatoya', 'San Agustín Acasaguastlán', 'San Cristóbal Acasaguastlán'],
+                        'Escuintla': ['Escuintla', 'Santa Lucía Cotzumalguapa', 'Tiquisate', 'La Gomera'],
+                        'Guatemala': ['Guatemala Ciudad', 'Mixco', 'Villa Nueva', 'San Miguel Petapa'],
+                        'Huehuetenango': ['Huehuetenango', 'Chiantal', 'Cuilco', 'Malacatancito'],
+                        'Izabal': ['Puerto Barrios', 'Livingston', 'El Estor', 'Morales'],
+                        'Jalapa': ['Jalapa', 'San Pedro Pinula', 'San Luis Jilotepeque', 'San Manuel Chaparrón'],
+                        'Jutiapa': ['Jutiapa', 'El Progreso', 'Santa Catarina Mita', 'Asunción Mita'],
+                        'Petén': ['Flores', 'San Benito', 'Santa Ana', 'San Andrés', 'La Libertad'],
+                        'Quetzaltenango': ['Quetzaltenango', 'Almolonga', 'Cantel', 'Coatepeque'],
+                        'Quiché': ['Santa Cruz del Quiché', 'Chichicastenango', 'Sacapulas', 'Joyabaj'],
+                        'Retalhuleu': ['Retalhuleu', 'San Sebastián', 'San Martín Zapotitlán', 'Champerico'],
+                        'Sacatepéquez': ['Antigua Guatemala', 'Jocotenango', 'Ciudad Vieja', 'San Lucas Sacatepéquez'],
+                        'San Marcos': ['San Marcos', 'San Pedro Sacatepéquez', 'San Rafael Pie de La Cuesta'],
+                        'Santa Rosa': ['Cuilapa', 'Barberena', 'Santa Rosa de Lima', 'San Juan Tecuaco'],
+                        'Sololá': ['Sololá', 'Panajachel', 'San José Chacayá', 'Santa Catarina Ixtahuacán'],
+                        'Suchitepéquez': ['Mazatenango', 'Cuyotenango', 'Patulul', 'San Antonio Suchitepéquez'],
+                        'Totonicapán': ['Totonicapán', 'San Andrés Xecul', 'San Bartolo Aguas Calientes'],
+                        'Zacapa': ['Zacapa', 'Estanzuela', 'Río Hondo', 'Teculután'],
+                    },
+                    municipios: [],
+                    tipoEnvio: '',
+                    mensaje: '',
+                    precios: {
+                        estandar: {
+                            'Guatemala': 20,
+                            'Escuintla': 35,
+                            'Sacatepéquez': 40,
+                            'Quetzaltenango': 50,
+                            'Huehuetenango': 70,
+                            'Petén': 100,
+                            'Alta Verapaz': 80,
+                            'Izabal': 90,
+                            'Chimaltenango': 30,
+                            'Santa Rosa': 45,
+                            'Chiquimula': 60
+                        },
+                        urgente: {
+                            'Guatemala': 40,
+                            'Escuintla': 65,
+                            'Sacatepéquez': 70,
+                            'Quetzaltenango': 80,
+                            'Huehuetenango': 110,
+                            'Petén': 150,
+                            'Alta Verapaz': 130,
+                            'Izabal': 140,
+                            'Chimaltenango': 60,
+                            'Santa Rosa': 75,
+                            'Chiquimula': 90
+                        }
+                    }
+                };
+            },
+            methods: {
+                actualizarMunicipios() {
+                    this.municipios = this.departamentosMunicipios[this.departamento] || [];
+                    this.municipio = ''; // Resetear municipio al cambiar el departamento
+                },
+                calcularCostoEnvio() {
+                    if (this.$refs.form.validate()) {
+                        const precio = this.precios[this.tipoEnvio][this.departamento];
+                        this.mensaje = `El costo de envío para ${this.cantidad} producto(s) (${this.contenido}) de ${this.peso} libras al municipio ${this.municipio} (${this.tipoEnvio}) es Q${precio}.`;
+                    } else {
+                        this.mensaje = '';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

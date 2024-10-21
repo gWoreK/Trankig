@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos Tecnológicos</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.6.0/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .mensaje {
+            color: green;
+            font-weight: bold;
+        }
+
+        .mensaje-error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-container class="container" fluid>
+                <div class="logo-container">
+                    <img src="assets/images/logo.png" width="120px" alt="Logo de la Tienda">
+                </div>
+                <v-card>
+                    <v-card-title>
+                        <span class="headline">Gestión de Productos Tecnológicos</span>
+                        <v-spacer></v-spacer>
+                        <v-text-field
+                            v-model="search"
+                            append-icon="mdi-magnify"
+                            label="Buscar"
+                            single-line
+                            hide-details
+                        ></v-text-field>
+                    </v-card-title>
+                    <v-data-table
+                        :headers="headers"
+                        :items="products"
+                        :search="search"
+                        :loading="loading"
+                        class="elevation-1"
+                    >
+                        <template v-slot:top>
+                            <v-toolbar flat>
+                                <v-dialog v-model="dialog" max-width="500px">
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn
+                                            color="primary"
+                                            dark
+                                            class="mb-2"
+                                            v-bind="attrs"
+                                            v-on="on"
+                                        >
+                                            Nuevo Producto
+                                        </v-btn>
+                                    </template>
+                                    <v-card>
+                                        <v-card-title>
+                                            <span class="headline">{{ formTitle }}</span>
+                                        </v-card-title>
+                                        <v-card-text>
+                                            <v-container>
+                                                <v-row>
+                                                    <v-col cols="12" sm="6" md="4">
+                                                        <v-text-field
+                                                            v-model="editedItem.name"
+                                                            label="Nombre del Producto"
+                                                            :rules="[v => !!v || 'Este campo es requerido']"
+                                                        ></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="12" sm="6" md="4">
+                                                        <v-text-field
+                                                            v-model="editedItem.category"
+                                                            label="Categoría"
+                                                            :rules="[v => !!v || 'Este campo es requerido']"
+                                                        ></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="12" sm="6" md="4">
+                                                        <v-text-field
+                                                            v-model="editedItem.price"
+                                                            label="Precio"
+                                                            prefix="$"
+                                                            type="number"
+                                                            :rules="[v => !!v || 'Este campo es requerido']"
+                                                        ></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="12" sm="6" md="4">
+                                                        <v-text-field
+                                                            v-model="editedItem.stock"
+                                                            label="Stock"
+                                                            type="number"
+                                                            :rules="[v => !!v || 'Este campo es requerido']"
+                                                        ></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="12">
+                                                        <v-textarea
+                                                            v-model="editedItem.description"
+                                                            label="Descripción"
+                                                        ></v-textarea>
+                                                    </v-col>
+                                                </v-row>
+                                            </v-container>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn color="blue darken-1" text @click="close">
+                                                Cancelar
+                                            </v-btn>
+                                            <v-btn color="blue darken-1" text @click="save">
+                                                Guardar
+                                            </v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-dialog>
+                                <v-dialog v-model="dialogDelete" max-width="500px">
+                                    <v-card>
+                                        <v-card-title class="headline">¿Está seguro de que desea eliminar este producto?</v-card-title>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+                                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                                            <v-spacer></v-spacer>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-dialog>
+                            </v-toolbar>
+                        </template>
+                        <template v-slot:item.actions="{ item }">
+                            <v-icon small class="mr-2" @click="editItem(item)" title="Editar">
+                                mdi-pencil
+                            </v-icon>
+                            <v-icon small @click="deleteItem(item)" title="Eliminar">
+                                mdi-delete
+                            </v-icon>
+                        </template>
+                    </v-data-table>
+                </v-card>
+                <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="3000">
+                    {{ snackbarText }}
+                    <template v-slot:action="{ attrs }">
+                        <v-btn text v-bind="attrs" @click="snackbar = false">
+                            Cerrar
+                        </v-btn>
+                    </template>
+                </v-snackbar>
+            </v-container>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.6.0/dist/vuetify.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: () => ({
+                dialog: false,
+                dialogDelete: false,
+                search: '',
+                loading: false,
+                headers: [
+                    { text: 'Nombre del Producto', align: 'start', sortable: true, value: 'name' },
+                    { text: 'Categoría', value: 'category' },
+                    { text: 'Precio', value: 'price' },
+                    { text: 'Stock', value: 'stock' },
+                    { text: 'Descripción', value: 'description' },
+                    { text: 'Acciones', value: 'actions', sortable: false }
+                ],
+                products: [],
+                editedIndex: -1,
+                editedItem: {
+                    name: '',
+                    category: '',
+                    price: 0,
+                    stock: 0,
+                    description: ''
+                },
+                defaultItem: {
+                    name: '',
+                    category: '',
+                    price: 0,
+                    stock: 0,
+                    description: ''
+                },
+                snackbar: false,
+                snackbarText: '',
+                snackbarColor: ''
+            }),
+
+            computed: {
+                formTitle () {
+                    return this.editedIndex === -1 ? 'Nuevo Producto' : 'Editar Producto'
+                },
+            },
+
+            watch: {
+                dialog (val) {
+                    val || this.close()
+                },
+                dialogDelete (val) {
+                    val || this.closeDelete()
+                },
+            },
+
+            created () {
+                this.initialize()
+            },
+
+            methods: {
+                initialize () {
+                    this.loading = true
+                    // Simular una llamada a API
+                    setTimeout(() => {
+                        this.products = [
+                            {
+                                name: 'Smartphone XYZ',
+                                category: 'Móviles',
+                                price: 599.99,
+                                stock: 50,
+                                description: 'Último modelo con cámara de 108MP y 5G'
+                            },
+                            {
+                                name: 'Laptop HP Pavilion 15',
+                                category: 'Portatiles',
+                                price: 700,
+                                stock: 5,
+                                description: 'Laptop potente con procesador intel i5 y 8 GB RAM'
+                            },
+                            {
+                                name: 'Apple MacBook Air',
+                                category: 'Portátiles',
+                                price: 800,
+                                stock: 10,
+                                description: 'Laptop ligera con chip M1 y 256GB SSD'
+                            },
+                            {
+                                name: 'Sony WH-1000XM4',
+                                category: 'Producto',
+                                price: 999,
+                                stock: 8,
+                                description: 'Auriculares inalámbricos con cancelación de ruido.'
+                            },
+                            {
+                                name: 'Samsung Galaxy S21',
+                                category: 'Portátiles',
+                                price: 350,
+                                stock: 12,
+                                description: 'Samsung Galaxy S21'
+                            },
+                            {
+                                name: 'Dell XPS 13',
+                                category: 'Portátiles',
+                                price: 950,
+                                stock: 5,
+                                description: 'Laptop compacta con pantalla InfinityEdge.'
+                            },
+                            {
+                                name: 'Apple iPhone 13',
+                                category: 'Portátiles',
+                                price: 899,
+                                stock: 20,
+                                description: 'Teléfono inteligente con cámara de doble lente y A15 Bionic.'
+                            },
+                            {
+                                name: ' Google Nest Hub',
+                                category: 'Producto',
+                                price: 99,
+                                stock: 25,
+                                description: 'Asistente inteligente con pantalla táctil de 7 pulgadas.'
+                            },
+                            {
+                                name: 'Fitbit Charge 5',
+                                category: 'Portátiles',
+                                price: 180,
+                                stock: 30,
+                                description: 'Reloj inteligente para seguimiento de actividad y salud.'
+                            },
+                            {
+                                name: 'Acer Aspire 5',
+                                category: 'Producto',
+                                price: 550,
+                                stock: 14,
+                                description: 'Laptop con procesador AMD Ryzen y 8GB RAM.'
+                            },
+                            {
+                                name: 'LG 55" OLED TV',
+                                category: 'Portátiles',
+                                price: 1500,
+                                stock: 7,
+                                description: 'Televisor OLED 4K de 55 pulgadas.'
+                            },
+                            {
+                                name: 'Microsoft Surface Pro 7',
+                                category: 'Producto',
+                                price: 750,
+                                stock: 10,
+                                description: 'Tableta con teclado desmontable y Windows 10.'
+                            },
+                            {
+                                name: 'Razer DeathAdder V2',
+                                category: 'Producto',
+                                price: 70,
+                                stock: 15,
+                                description: 'Ratón gaming ergonómico y preciso.'
+                            },
+                            {
+                                name: 'Amazon Echo Dot',
+                                category: 'Producto',
+                                price: 49.99,
+                                stock: 20,
+                                description: 'Altavoz inteligente con Alexa.'
+                            },
+                            {
+                                name: 'JBL Flip 5',
+                                category: 'Producto',
+                                price: 89.99,
+                                stock: 18,
+                                description: 'Altavoz Bluetooth resistente al agua.'
+                            },
+                            {
+                                name: 'Logitech C920 Webcam',
+                                category: 'Producto',
+                                price: 79.99,
+                                stock: 22,
+                                description: 'Cámara web HD para videoconferencias.'
+                            },
+                            {
+                                name: 'Seagate Portable 2TB',
+                                category: 'Producto',
+                                price: 59.99,
+                                stock: 25,
+                                description: 'Disco duro externo de 2TB.'
+                            },
+                            {
+                                name: 'Asus ROG Strix Gaming',
+                                category: 'Producto',
+                                price: 129.99,
+                                stock: 16,
+                                description: 'Laptop gamer con gráficos NVIDIA RTX.'
+                            },
+
+                            {
+                                name: 'Kindle Paperwhite',
+                                category: 'Producto',
+                                price: 649.99,
+                                stock: 25,
+                                description: 'E-reader con pantalla de alta resolución.'
+                            },
+
+                            {
+                                name: 'Samsung Galaxy Tab S7',
+                                category: 'Producto',
+                                price: 649.99,
+                                stock: 25,
+                                description: 'Tableta Android de 11 pulgadas.'
+                            },
+
+
+                            
+                        ]
+                        this.loading = false
+                    }, 1000)
+                },
+
+                editItem (item) {
+                    this.editedIndex = this.products.indexOf(item)
+                    this.editedItem = Object.assign({}, item)
+                    this.dialog = true
+                },
+
+                deleteItem (item) {
+                    this.editedIndex = this.products.indexOf(item)
+                    this.editedItem = Object.assign({}, item)
+                    this.dialogDelete = true
+                },
+
+                deleteItemConfirm () {
+                    this.products.splice(this.editedIndex, 1)
+                    this.closeDelete()
+                    this.showSnackbar('Producto eliminado', 'success')
+                },
+
+                close () {
+                    this.dialog = false
+                    this.$nextTick(() => {
+                        this.editedItem = Object.assign({}, this.defaultItem)
+                        this.editedIndex = -1
+                    })
+                },
+
+                closeDelete () {
+                    this.dialogDelete = false
+                    this.$nextTick(() => {
+                        this.editedItem = Object.assign({}, this.defaultItem)
+                        this.editedIndex = -1
+                    })
+                },
+
+                save () {
+                    if (this.editedIndex > -1) {
+                        Object.assign(this.products[this.editedIndex], this.editedItem)
+                        this.showSnackbar('Producto actualizado', 'success')
+                    } else {
+                        this.products.push(this.editedItem)
+                        this.showSnackbar('Producto añadido', 'success')
+                    }
+                    this.close()
+                },
+
+                showSnackbar(text, color) {
+                    this.snackbarText = text
+                    this.snackbarColor = color
+                    this.snackbar = true
+                }
+            },
+        })
+    </script>
+</body>
+</html>
