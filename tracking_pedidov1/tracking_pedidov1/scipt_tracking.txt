@@ -1,0 +1,183 @@
+CREATE DATABASE IF NOT EXISTS tracking_pedidos;
+USE tracking_pedidos;
+
+CREATE TABLE clientes (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    id_persona INT NOT NULL,
+    nit VARCHAR(10),
+    activo int
+);
+
+CREATE TABLE productos (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_producto VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    fotografia VARCHAR(300), 
+    precio DECIMAL(10, 2) NOT NULL,
+    cantidad_stock INT NOT NULL,
+    activo int
+);
+
+
+CREATE TABLE estado_pedido ( // ejemplos de insert 'Pendiente', 'Enviado', 'Entregado', 'Cancelado'
+    id_estado INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
+    cantidad_stock INT NOT NULL,
+    activo int
+);
+
+CREATE TABLE metodo_pago (// ejemplos de insert 'Tarjeta de Crédito', 'PayPal', 'Transferencia Bancaria'
+    id_metodo INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
+    cantidad_stock INT NOT NULL,
+    activo int
+);
+
+CREATE TABLE pedidos ( 
+    id_pedido INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_pedido DATETIME NOT NULL,
+    id_estado INT NOT NULL,
+    id_cliente INT,
+    monto_total DECIMAL(10, 2) NOT NULL,
+    id_metodo_pago INT NOT NULL,
+    activo int,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+    FOREIGN KEY (id_estado) REFERENCES estado_pedido(id_estado),
+    FOREIGN KEY (id_metodo_pago) REFERENCES metodo_pago(id_metodo)
+);
+
+
+CREATE TABLE detalles_pedido (
+    id_detalle_pedido INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    id_producto INT,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    precio_total DECIMAL(10, 2) NOT NULL,
+    activo int,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido),
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+
+CREATE TABLE tracking (
+    id_tracking INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    id_estado INT NOT NULL,
+    ubicacion VARCHAR(255),
+    fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    activo int,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido),
+    FOREIGN KEY (id_estado) REFERENCES estado_pedido(id_estado)
+);
+
+CREATE TABLE metodos_envio (
+    id_metodo_envio INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_metodo VARCHAR(100) NOT NULL,
+    costo DECIMAL(10, 2) NOT NULL,
+    activo int
+);
+
+CREATE TABLE departamento (
+    id_departamento INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    activo int
+);
+
+CREATE TABLE municipio (
+    id_municipio INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    id_departamento int not null,
+    activo int,
+    FOREIGN KEY (id_departamento) REFERENCES departamento(id_departamento)
+);
+
+CREATE TABLE pais (
+    id_pais INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    activo int
+);
+
+CREATE TABLE empresas (
+    id_empresa INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_empresa VARCHAR(100) NOT NULL,
+    direccion VARCHAR(255),
+    telefono VARCHAR(20)
+);
+
+CREATE TABLE persona (
+    id_persona INT AUTO_INCREMENT PRIMARY KEY,
+    primer_nombre VARCHAR(100) NOT NULL,
+    segundo_nombre VARCHAR(100) NOT NULL,
+    primer_apellido VARCHAR(100) NOT NULL,
+    segundo_apellido VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    fecha_nacimiento DATE,
+    id_empresa INT,
+    FOREIGN KEY (id_empresa) REFERENCES empresas(id_empresa)
+);
+
+CREATE TABLE direccion_persona (
+    id_direccion_envio INT AUTO_INCREMENT PRIMARY KEY,
+    id_persona int not null,
+    direccion VARCHAR(255) NOT NULL,
+    codigo_postal VARCHAR(20) NOT NULL,
+    id_municipio int not null,
+    id_departamento int not null,
+    id_pais int NOT NULL,
+    activo int,
+    FOREIGN KEY (id_persona) REFERENCES persona(id_persona),
+    FOREIGN KEY (id_municipio) REFERENCES municipio(id_municipio),
+    FOREIGN KEY (id_departamento) REFERENCES departamento(id_departamento),
+    FOREIGN KEY (id_pais) REFERENCES pais(id_pais)
+);
+
+CREATE TABLE pagos (
+    id_pago INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT,
+    monto DECIMAL(10, 2) NOT NULL,
+    fecha_pago DATETIME NOT NULL,
+    id_metodo_pago INT NOT NULL,
+    activo int,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido),
+    FOREIGN KEY (id_metodo_pago) REFERENCES metodo_pago(id_metodo)
+);
+
+
+
+
+
+
+CREATE TABLE perfiles_usuarios (
+    id_perfil INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_perfil VARCHAR(50) NOT NULL,
+    descripcion TEXT
+);
+
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
+    contrasena VARCHAR(255) NOT NULL,
+    correo_electronico VARCHAR(100) UNIQUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_perfil INT,
+    FOREIGN KEY (id_perfil) REFERENCES perfiles_usuarios(id_perfil)
+);
+
+
+CREATE TABLE logs_inicio_sesion (
+    id_log INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    exito BOOLEAN NOT NULL,
+    ip_origen VARCHAR(45),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+
+
+ALTER TABLE usuarios
+ADD COLUMN id_persona INT,
+ADD CONSTRAINT fk_persona_usuario
+FOREIGN KEY (id_persona) REFERENCES persona(id_persona);

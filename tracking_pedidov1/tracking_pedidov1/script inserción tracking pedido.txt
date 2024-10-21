@@ -1,0 +1,85 @@
+-- Insertar estados de pedido
+INSERT INTO estado_pedido (nombre) VALUES ('Pendiente'), ('Enviado'), ('Entregado'), ('Cancelado');
+
+-- Insertar métodos de pago
+INSERT INTO metodo_pago (nombre) VALUES ('Tarjeta de Crédito'), ('PayPal'), ('Transferencia Bancaria');
+
+-- Insertar departamentos
+INSERT INTO departamento (nombre) VALUES ('Guatemala'), ('Sacatepéquez'), ('Chimaltenango');
+
+-- Insertar municipios
+INSERT INTO municipio (nombre, id_departamento) VALUES 
+    ('Guatemala', 1), 
+    ('Mixco', 1), 
+    ('Antigua Guatemala', 2), 
+    ('Chimaltenango', 3);
+
+-- Insertar países
+INSERT INTO pais (nombre) VALUES ('Guatemala');
+
+-- Insertar empresas
+INSERT INTO empresas (nombre_empresa, direccion, telefono) VALUES 
+    ('Empresa A', 'Calle 1, Zona 10, Ciudad', '12345678'),
+    ('Empresa B', 'Avenida 2, Zona 11, Ciudad', '87654321');
+
+-- Insertar personas
+INSERT INTO persona (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, telefono, fecha_nacimiento, id_empresa) VALUES 
+    ('Juan', 'Pérez', 'González', 'López', '12345678', '1985-01-01', 1),
+    ('María', 'Fernández', 'Martínez', 'Díaz', '87654321', '1990-05-15', 2);
+
+-- Insertar clientes
+INSERT INTO clientes (id_persona, nit, activo) VALUES 
+    (1, '12345678', 1), 
+    (2, '87654321', 1);
+
+-- Insertar productos
+INSERT INTO productos (nombre_producto, descripcion, fotografia, precio, cantidad_stock, activo) VALUES 
+    ('Laptop HP Pavilion 15', 'Laptop potente con procesador Intel i5 y 8GB RAM.', 'https://ssl-product-images.www8.hp.com/digmedia/dollars/2020-02-12/16-2098/2M401UA_04.jpg', 700.00, 10, 1),
+    ('Samsung Galaxy S21', 'Teléfono inteligente con pantalla AMOLED de 6.2 pulgadas.', 'https://images.samsung.com/is/image/samsung/p6pim/latin/galaxy-s21/gallery/latin-galaxy-s21-5g-g991-sm-g991bzkamgt-371489960?$1600_1600_PNG$', 800.00, 15, 1),
+    ('Apple MacBook Air', 'Laptop ligera con chip M1 y 256GB SSD.', 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MacBook-Air-13-inch-Space-Gray-Select?wid=470&hei=556&fmt=png-alpha&qlt=95&.v=1668470600344', 999.00, 8, 1),
+    ('Sony WH-1000XM4', 'Auriculares inalámbricos con cancelación de ruido.', 'https://www.sony.com/image/249487b7cda1ed4b19e9c3bd1fd7b17c?fmt=pjpeg&wid=750&hei=750&bgcolor=FFFFFF&bgc=FFFFFF', 350.00, 12, 1),
+    ('Dell XPS 13', 'Laptop compacta con pantalla InfinityEdge.', 'https://i.dell.com/is/image/DellContent/dell-xps-13-9310-laptop-xps9310_32.jpg?$S640W$&fmt=pjpeg&wid=640&hei=480', 950.00, 5, 1),
+    ('Apple iPhone 13', 'Teléfono inteligente con cámara de doble lente y A15 Bionic.', 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-13-gallery-2?wid=1500&hei=1500&fmt=jpeg&qlt=95&.v=1631659757000', 899.00, 20, 1),
+    ('Google Nest Hub', 'Asistente inteligente con pantalla táctil de 7 pulgadas.', 'https://images-na.ssl-images-amazon.com/images/I/71SH3R-7e5L._AC_SL1500_.jpg', 99.00, 25, 1),
+    ('Fitbit Charge 5', 'Reloj inteligente para seguimiento de actividad y salud.', 'https://static.fitzmall.com/uploads/2021/08/fitbit-charge-5.jpg', 180.00, 30, 1),
+    ('Acer Aspire 5', 'Laptop con procesador AMD Ryzen y 8GB RAM.', 'https://www.acer.com/ac/en/US/content/images/products/entry/aspire5.jpg', 550.00, 14, 1),
+    ('LG 55" OLED TV', 'Televisor OLED 4K de 55 pulgadas.', 'https://www.lg.com/us/images/tvs/md06117333/gallery/desktop-01.jpg', 1500.00, 7, 1),
+    ('Microsoft Surface Pro 7', 'Tableta con teclado desmontable y Windows 10.', 'https://www.microsoft.com/en-us/surface/business/surface-pro-7/media/Pro7_1_RGB.jpg', 750.00, 10, 1),
+    ('Razer DeathAdder V2', 'Ratón gaming ergonómico y preciso.', 'https://assets.razerzone.com/ee8e9f2f-66c8-4f4d-bb5e-22d8d45b7b3a/razer-deathadder-v2-gaming-mouse.png', 70.00, 15, 1),
+    ('Amazon Echo Dot', 'Altavoz inteligente con Alexa.', 'https://m.media-amazon.com/images/I/61UwZFTqH2L._AC_SL1000_.jpg', 49.99, 20, 1),
+    ('JBL Flip 5', 'Altavoz Bluetooth resistente al agua.', 'https://media.jbl.com/is/image/JBL/FLIP5_HERO_BLK?$JBL_Audio_V2_HERO$&wid=1200&hei=1200', 89.95, 18, 1),
+    ('Logitech C920 Webcam', 'Cámara web HD para videoconferencias.', 'https://cdn.logitech.com/assets/63509/c920s-webcam.png', 79.99, 22, 1),
+    ('Seagate Portable 2TB', 'Disco duro externo de 2TB.', 'https://www.seagate.com/static/images/products/portable-hard-drives/seagate-portable-2tb-1.jpg', 59.99, 25, 1),
+    ('Asus ROG Strix Gaming', 'Laptop gamer con gráficos NVIDIA RTX.', 'https://rog.asus.com/media/16851/rog-strix-gaming-laptop-2021-website-hero.png', 1299.00, 6, 1),
+    ('Corsair K95 RGB', 'Teclado mecánico con retroiluminación RGB.', 'https://www.corsair.com/medias/sys_master/images/images/hb2/h4d/h00/h00/9022104292000/CL-9011110-NA-IMG-003.png', 199.99, 11, 1),
+    ('Kindle Paperwhite', 'E-reader con pantalla de alta resolución.', 'https://images-na.ssl-images-amazon.com/images/I/71h4Q25z5FL._AC_SL1500_.jpg', 129.99, 13, 1),
+    ('Samsung Galaxy Tab S7', 'Tableta Android de 11 pulgadas.', 'https://images.samsung.com/is/image/samsung/p6pim/latin/galaxy-tab-s7/gallery/latin-galaxy-tab-s7-sm-t870nzkamgt-371489352?$1600_1600_PNG$', 649.99, 10, 1);
+
+-- Insertar pedidos
+INSERT INTO pedidos (fecha_pedido, id_estado, id_cliente, monto_total, id_metodo_pago, activo) VALUES 
+    (NOW(), 1, 1, 100.00, 1, 1),
+    (NOW(), 1, 2, 200.00, 2, 1);
+
+-- Insertar detalles de pedido
+INSERT INTO detalles_pedido (id_pedido, id_producto, cantidad, precio_unitario, precio_total, activo) VALUES 
+    (1, 1, 1, 100.00, 100.00, 1),
+    (2, 2, 1, 200.00, 200.00, 1);
+
+-- Insertar métodos de envío
+INSERT INTO metodos_envio (nombre_metodo, costo, activo) VALUES 
+    ('Envío Local', 30.00, 1), 
+    ('Envío Nacional', 50.00, 1);
+
+-- Insertar usuarios y perfiles
+INSERT INTO perfiles_usuarios (nombre_perfil, descripcion) VALUES 
+    ('Administrador', 'Acceso completo'), 
+    ('Usuario', 'Acceso limitado');
+
+INSERT INTO usuarios (nombre_usuario, contrasena, correo_electronico, id_perfil) VALUES 
+    ('admin', 'contraseña', 'admin@ejemplo.com', 1),
+    ('usuario1', 'contraseña', 'usuario1@ejemplo.com', 2);
+
+-- Insertar logs de inicio de sesión
+INSERT INTO logs_inicio_sesion (id_usuario, exito, ip_origen) VALUES 
+    (1, TRUE, '192.168.1.1'),
+    (2, FALSE, '192.168.1.2');
